@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "generate-dictionary": "node ./dictionary-generator/cli.mjs"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^4.2.2",
+    "html-entities": "^2.3.3",
+    "jsdom": "^22.0.0",
+    "readline-sync": "^1.4.10",
+    "yargs": "^17.7.2"
+  }
+}
