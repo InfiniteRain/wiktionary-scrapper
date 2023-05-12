@@ -1,7 +1,8 @@
 {
   "scripts": {
     "section-scrapper": "node ./section-scrapper/cli.mjs",
-    "generate-dictionary": "node ./dictionary-generator/cli.mjs"
+    "generate-dictionary": "node ./dictionary-generator/cli.mjs",
+    "compress-dictionary": "node ./dictionary-compressor/cli.mjs"
   },
   "dependencies": {
     "fast-xml-parser": "^4.2.2",
