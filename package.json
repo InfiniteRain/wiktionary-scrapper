@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "section-scrapper": "node ./section-scrapper/cli.mjs",
     "generate-dictionary": "node ./dictionary-generator/cli.mjs"
   },
   "dependencies": {
