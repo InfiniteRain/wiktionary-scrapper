@@ -211,7 +211,7 @@ const parsedSegmentToDefinitionEntry = ([_, partOfSpeech, segment]) => {
   return entry;
 };
 
-const generate = async (sourceFile, low, high) => {
+const generate = async (sourceFile, low, high, concurrentRequests) => {
   const parsedSections = parseSections(sourceFile);
   const tasks = [];
 
@@ -258,7 +258,7 @@ const generate = async (sourceFile, low, high) => {
     );
   }
 
-  const result = await startAsyncExecutionQueue(20, tasks);
+  const result = await startAsyncExecutionQueue(concurrentRequests, tasks);
   const dictionary = {};
   const failed = {};
 

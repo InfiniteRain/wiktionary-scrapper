@@ -27,8 +27,9 @@ yargs(hideBin(process.argv))
         });
     },
     handler: (argv) => {
-      const { sectionsFile, outputDir, low, high } = argv;
-      generate(sectionsFile, low, high)
+      const { sectionsFile, outputDir, low, high, concurrentRequests } = argv;
+
+      generate(sectionsFile, low, high, concurrentRequests)
         .then(({ dictionary, failed }) => {
           if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir);
@@ -52,6 +53,12 @@ yargs(hideBin(process.argv))
     },
   })
   .demandCommand(4)
+  .option("concurrent-requests", {
+    alias: "c",
+    type: "number",
+    description: "amount of concurrent API requests",
+    default: 20,
+  })
   .strict()
   .help()
   .parse();
