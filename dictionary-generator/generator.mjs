@@ -79,7 +79,11 @@ const parseSections = (sourceFile) => {
       word,
       content: `${definitions
         .join("\n")
-        .replaceAll(definitionPosReplaceRegex, "|DELIM|$1:")}`,
+        .replaceAll(definitionPosReplaceRegex, "|DELIM|$1:") // add delimiters on POS headings
+        .replace(/{{wikipedia.*?}}/g, "") // remove wikipedia references
+        .replace(/{{slim-wikipedia.*?}}/g, "") // remove wikipedia references
+        .replace(/{{wp\|.*?}}/g, "") // remove wikipedia references
+        .replace(/{{cardinalbox.*?}}/g, "")}`, // remove the cardinal box
     });
   }
 
@@ -117,13 +121,23 @@ const parseWikiText = async (title, wikiText) => {
 };
 
 const formatSegmentPart = (text) => {
-  return decode(text.replace(/<\/?[^>]+(>|$)/g, ""))
+  // decoding twice as some examples are doubly encoded
+  return decode(
+    decode(text)
+      .replace(/<<([^>]*)>>/g, "$1") // remove << >> around some terms
+      .replace(/<ref>[^<]*<\/ref>/g, "") // remove all ref tags alongside their contents
+      .replace(/<\/?[^>]+(>|$)/g, "") // remove all other html tags, but not their contents
+  )
     .trim()
     .replaceAll(/\s+/g, " ");
 };
 
 const parsedSegmentToDefinitionEntry = ([_, partOfSpeech, segment]) => {
   const entry = { partOfSpeech };
+
+  // Strip all HTML comments
+  segment = segment.replace(/(?:&lt;|<)!\-\-.*?\-\-(?:&gt;|>)/g, "");
+
   const indexOfOl = segment.indexOf("<ol>");
 
   if (indexOfOl === -1) {
@@ -156,7 +170,7 @@ const parsedSegmentToDefinitionEntry = ([_, partOfSpeech, segment]) => {
       );
     }
 
-    definition.text = decode(formatSegmentPart(definitionParts.join("")));
+    definition.text = formatSegmentPart(definitionParts.join(""));
 
     let currentExample = "";
     for (const exampleElement of element.querySelectorAll(
@@ -204,6 +218,11 @@ const generate = async (sourceFile, low, high) => {
   for (const [key, { word, content }] of parsedSections
     .slice(low, high)
     .entries()) {
+    // ignore sections without an acceptable POS section
+    if (content.trim().length === 0) {
+      continue;
+    }
+
     tasks.push(
       new Task(async (resolve, reject) => {
         console.log(`Parsing ${low + key + 1}/${high}...`);
@@ -239,7 +258,7 @@ const generate = async (sourceFile, low, high) => {
     );
   }
 
-  const result = await startAsyncExecutionQueue(25, tasks);
+  const result = await startAsyncExecutionQueue(20, tasks);
   const dictionary = {};
   const failed = {};
 

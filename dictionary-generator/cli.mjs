@@ -31,7 +31,7 @@ yargs(hideBin(process.argv))
       generate(sectionsFile, low, high)
         .then(({ dictionary, failed }) => {
           if (!fs.existsSync(outputDir)) {
-            fs.mkdir(outputDir);
+            fs.mkdirSync(outputDir);
           }
 
           if (Object.keys(failed).length > 0) {
